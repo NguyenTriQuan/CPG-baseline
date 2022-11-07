@@ -13,7 +13,7 @@ from packnet_models import AngleLoss
 class Manager(object):
     """Handles training and pruning."""
 
-    def __init__(self, args, model, shared_layer_info, masks, train_loader, val_loader):
+    def __init__(self, args, model, shared_layer_info, masks, train_loader, val_loader, train_transform, valid_transform):
         self.args  = args
         self.model = model
         self.shared_layer_info = shared_layer_info
@@ -21,6 +21,8 @@ class Manager(object):
         self.pruner = SparsePruner(self.model, masks, self.args, None, None, self.inference_dataset_idx)
         self.train_loader = train_loader
         self.val_loader   = val_loader
+        self.train_transform = train_transform
+        self.valid_transform = valid_transform
 
         if args.dataset == 'face_verification':
             self.criterion = AngleLoss()
@@ -46,7 +48,8 @@ class Manager(object):
             for batch_idx, (data, target) in enumerate(self.train_loader):
                 if self.args.cuda:
                     data, target = data.cuda(), target.cuda()
-
+                if self.train_transform:
+                    data = self.train_transform(data)
                 optimizers.zero_grad()
                 # Do forward-backward.
                 output = self.model(data)
@@ -90,7 +93,8 @@ class Manager(object):
                 for data, target in self.val_loader:
                     if self.args.cuda:
                         data, target = data.cuda(), target.cuda()
-
+                    if self.valid_transform:
+                        data = self.valid_transform(data)
                     output = self.model(data)
                     num = data.size(0)
                     val_loss.update(self.criterion(output, target), num)

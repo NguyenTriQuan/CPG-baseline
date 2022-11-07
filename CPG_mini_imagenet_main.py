@@ -76,7 +76,7 @@ parser.add_argument('--save_prefix', type=str, default='checkpoints/',
 # Other.
 parser.add_argument('--cuda', action='store_true', default=True,
                    help='use CUDA')
-parser.add_argument('--seed', type=int, default=1, help='random seed')
+parser.add_argument('--seed', type=int, default=0, help='random seed')
 parser.add_argument('--checkpoint_format', type=str,
                     default='./{save_folder}/checkpoint-{epoch}.pth.tar',
                     help='checkpoint file format')
