@@ -128,13 +128,15 @@ def main():
         masks = {}
         shared_layer_info = {}
 
-    if args.arch == 'vgg16_bn_cifar100':
-        model = packnet_models.__dict__[args.arch](pretrained=False, dataset_history=dataset_history, dataset2num_classes=dataset2num_classes)
-    elif args.arch == 'resnet18':
-        model = packnet_models.__dict__[args.arch](dataset_history=dataset_history, dataset2num_classes=dataset2num_classes)
-    else:
-        print('Error!')
-        sys.exit(0)
+    # if args.arch == 'vgg16_bn_cifar100':
+    #     model = packnet_models.__dict__[args.arch](pretrained=False, dataset_history=dataset_history, dataset2num_classes=dataset2num_classes)
+    # elif args.arch == 'resnet18':
+    #     model = packnet_models.__dict__[args.arch](dataset_history=dataset_history, dataset2num_classes=dataset2num_classes)
+    # else:
+    #     print('Error!')
+    #     sys.exit(0)
+
+    model = packnet_models.__dict__[args.arch](pretrained=False, dataset_history=dataset_history, dataset2num_classes=dataset2num_classes)
 
     # Add and set the model dataset
     model.add_dataset(args.dataset, args.num_classes)
