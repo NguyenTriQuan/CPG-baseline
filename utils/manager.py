@@ -57,7 +57,7 @@ class Manager(object):
                 optimizers.zero_grad()
                 # Do forward-backward.
                 output = self.model(data)
-                print(output.shape, target.shape)
+                print(data.shape, output.shape, target.shape)
                 num = data.size(0)
                 if self.args.dataset != 'face_verification':
                     train_accuracy.update(classification_accuracy(output, target), num)
