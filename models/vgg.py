@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import models.layers as nl
 import pdb
+import numpy as np
 
 __all__ = [
     'VGG', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
@@ -19,6 +20,9 @@ model_urls = {
     'vgg16_bn': 'https://download.pytorch.org/models/vgg16_bn-6c64b313.pth',
     'vgg19_bn': 'https://download.pytorch.org/models/vgg19_bn-c79401a0.pth',
 }
+
+def compute_conv_output_size(Lin,kernel_size,stride=1,padding=0,dilation=1):
+    return int(np.floor((Lin+2*padding-dilation*(kernel_size-1)-1)/float(stride)+1))
 
 class View(nn.Module):
     """Changes view using a nn.Module."""
@@ -114,6 +118,35 @@ def make_layers_cifar100(cfg, network_width_multiplier, batch_norm=False, groups
     layers += [
         View(-1, int(512*network_width_multiplier)),
         nl.SharableLinear(int(512*network_width_multiplier), int(4096*network_width_multiplier)),
+        nn.ReLU(True),
+        nl.SharableLinear(int(4096*network_width_multiplier), int(4096*network_width_multiplier)),
+        nn.ReLU(True),
+    ]
+
+    return nn.Sequential(*layers)
+
+def make_layers_mini_imagenet(cfg, network_width_multiplier, batch_norm=False, groups=1):
+    layers = []
+    in_channels = 3
+
+    for v in cfg:
+        if v == 'M':
+            layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+        else:
+            if in_channels == 3:
+                conv2d = nl.SharableConv2d(in_channels, int(v * network_width_multiplier), kernel_size=3, padding=1, bias=False)
+            else:
+                conv2d = nl.SharableConv2d(in_channels, int(v * network_width_multiplier), kernel_size=3, padding=1, bias=False, groups=groups)
+
+            if batch_norm:
+                layers += [conv2d, nn.BatchNorm2d(int(v * network_width_multiplier)), nn.ReLU(inplace=True)]
+            else:
+                layers += [conv2d, nn.ReLU(inplace=True)]
+            in_channels = int(v * network_width_multiplier)
+
+    layers += [
+        View(-1, int(512*network_width_multiplier*4)),
+        nl.SharableLinear(int(512*network_width_multiplier*4), int(4096*network_width_multiplier)),
         nn.ReLU(True),
         nl.SharableLinear(int(4096*network_width_multiplier), int(4096*network_width_multiplier)),
         nn.ReLU(True),
@@ -279,4 +312,8 @@ def custom_vgg_cifar100(custom_cfg, dataset_history=[], dataset2num_classes={}, 
 
 def custom_vgg(custom_cfg, dataset_history=[], dataset2num_classes={}, network_width_multiplier=1.0, groups=1, shared_layer_info={}, **kwargs):
     return VGG(make_layers(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
+        dataset2num_classes, network_width_multiplier, shared_layer_info, **kwargs)
+
+def custom_vgg_mini_imagenet(custom_cfg, dataset_history=[], dataset2num_classes={}, network_width_multiplier=1.0, groups=1, shared_layer_info={}, **kwargs):
+    return VGG(make_layers_mini_imagenet(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
         dataset2num_classes, network_width_multiplier, shared_layer_info, **kwargs)

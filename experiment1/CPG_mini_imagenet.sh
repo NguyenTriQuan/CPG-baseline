@@ -21,7 +21,7 @@ setting='scratch_mul_1.5'
 baseline_cifar100_acc='logs/baseline_mini_imagenet.txt'
 max_allowed_network_width_multiplier=0.75
 
-arch='custom_vgg_cifar100'
+arch='custom_vgg_mini_imagenet'
 finetune_epochs=100
 network_width_multiplier=0.5
 pruning_ratio_interval=0.1

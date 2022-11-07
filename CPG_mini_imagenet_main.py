@@ -198,6 +198,10 @@ def main():
 
     model = nn.DataParallel(model)
     model = model.cuda()
+    count = 0
+    for p in model.parameters():
+        count += p.numel()
+    print('num params', count)
     if not masks:
         for name, module in model.named_modules():
             if isinstance(module, nl.SharableConv2d) or isinstance(module, nl.SharableLinear):
