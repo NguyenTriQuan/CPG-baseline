@@ -68,10 +68,10 @@ def get(args, pc_valid=0.10):
     print('Task order =',task_order+1)
     mean = torch.tensor([0.485, 0.456, 0.406])
     std = torch.tensor([0.229, 0.224, 0.225])
-    if args.total_num_tasks > max_tasks:
-        tasknum = max_tasks
-    else:
-        tasknum = args.total_num_tasks
+    # if args.total_num_tasks > max_tasks:
+    #     tasknum = max_tasks
+    # else:
+    #     tasknum = args.total_num_tasks
     # CIFAR100    
     train_set = MiniImageNet('../dat/',train=True)
     test_set = MiniImageNet('../dat/',train=False)
