@@ -18,7 +18,7 @@ dataset=(
 
 GPU_ID=0
 setting='scratch_mul_1.5'
-baseline_cifar100_acc='logs/baseline_mini_imagenet.txt'
+baseline_cifar100_acc='logs/baseline_10_mini_imagenet.txt'
 max_allowed_network_width_multiplier=0.75
 
 arch='custom_vgg_mini_imagenet'

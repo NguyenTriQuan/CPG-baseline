@@ -14,7 +14,7 @@ dataset=(
     '9'
 )
 
-GPU_ID=2
+GPU_ID=0
 NETWORK_WIDTH_MULTIPLIER=0.5
 ARCH='custom_vgg_mini_imagenet'
 SETTING='scratch_mul_1.5'
@@ -23,10 +23,10 @@ for TASK_ID in `seq 1 10`; do
     CUDA_VISIBLE_DEVICES=$GPU_ID python CPG_mini_imagenet_main.py \
         --arch $ARCH \
         --dataset ${DATASETS[TASK_ID]} --num_classes 10 \
-        --load_folder checkpoints/CPG/experiment1/$SETTING/$ARCH/${DATASETS[20]}/gradual_prune \
+        --load_folder checkpoints/CPG/experiment1/$SETTING/$ARCH/${DATASETS[10]}/gradual_prune \
         --mode inference \
-        --baseline_acc_file logs/baseline_mini_imagenet.txt \
+        --baseline_acc_file logs/baseline_10_mini_imagenet.txt \
         --network_width_multiplier $NETWORK_WIDTH_MULTIPLIER \
         --max_allowed_network_width_multiplier 0.75 \
-        --log_path logs/mini_imagenet_inference.log
+        --log_path logs/10_mini_imagenet_inference.log
 done
