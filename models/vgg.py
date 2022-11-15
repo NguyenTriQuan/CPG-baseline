@@ -345,7 +345,7 @@ def custom_vgg(custom_cfg, dataset_history=[], dataset2num_classes={}, network_w
 
 def custom_vgg_10_mini_imagenet(custom_cfg, dataset_history=[], dataset2num_classes={}, network_width_multiplier=1.0, groups=1, shared_layer_info={}, **kwargs):
     return VGG(make_layers_10_mini_imagenet(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
-        dataset2num_classes, network_width_multiplier, shared_layer_info, N=2058, **kwargs)
+        dataset2num_classes, network_width_multiplier, shared_layer_info, N=2048, **kwargs)
 
 def custom_vgg_20_mini_imagenet(custom_cfg, dataset_history=[], dataset2num_classes={}, network_width_multiplier=1.0, groups=1, shared_layer_info={}, **kwargs):
     return VGG(make_layers_20_mini_imagenet(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
