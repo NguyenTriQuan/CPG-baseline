@@ -23,9 +23,10 @@ class View(nn.Module):
         return input.view(*self.shape)
 
 class VGG(nn.Module):
-    def __init__(self, features, dataset_history, dataset2num_classes, init_weights=True):
+    def __init__(self, features, dataset_history, dataset2num_classes, init_weights=True, N=4096):
         super(VGG, self).__init__()
         self.features = features
+        self.N = N
         self.datasets, self.classifiers = dataset_history, nn.ModuleList()
         self.dataset2num_classes = dataset2num_classes
 
@@ -55,14 +56,14 @@ class VGG(nn.Module):
 
     def _reconstruct_classifiers(self):
         for dataset, num_classes in self.dataset2num_classes.items():
-            self.classifiers.append(nn.Linear(4096//2, num_classes))
+            self.classifiers.append(nn.Linear(self.N, num_classes))
 
     def add_dataset(self, dataset, num_classes):
         """Adds a new dataset to the classifier."""
         if dataset not in self.datasets:
             self.datasets.append(dataset)
             self.dataset2num_classes[dataset] = num_classes
-            self.classifiers.append(nn.Linear(4096//2, num_classes))
+            self.classifiers.append(nn.Linear(self.N, num_classes))
             nn.init.normal_(self.classifiers[self.datasets.index(dataset)].weight, 0, 0.01)
             nn.init.constant_(self.classifiers[self.datasets.index(dataset)].bias, 0)
 
@@ -289,7 +290,7 @@ def vgg16_bn_10_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_
     """
     if pretrained:
         kwargs['init_weights'] = False
-    return VGG(make_layers_10_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs)
+    return VGG(make_layers_10_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs, N=2048)
 
 def vgg16_bn_20_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_classes={}, **kwargs):
     """VGG 16-layer model (configuration "D") with batch normalization
@@ -299,4 +300,4 @@ def vgg16_bn_20_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_
     """
     if pretrained:
         kwargs['init_weights'] = False
-    return VGG(make_layers_20_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs)
+    return VGG(make_layers_20_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs, N=4096)

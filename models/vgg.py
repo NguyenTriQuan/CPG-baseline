@@ -35,9 +35,10 @@ class View(nn.Module):
         return input.view(*self.shape)
 
 class VGG(nn.Module):
-    def __init__(self, features, dataset_history, dataset2num_classes, network_width_multiplier=1.0, shared_layer_info={}, init_weights=True, progressive_init=False):
+    def __init__(self, features, dataset_history, dataset2num_classes, network_width_multiplier=1.0, shared_layer_info={}, init_weights=True, progressive_init=False, N=4096):
         super(VGG, self).__init__()
         self.features = features
+        self.N = N
         self.network_width_multiplier = network_width_multiplier
         self.shared_layer_info = shared_layer_info
         # self.avgpool = nn.AdaptiveAvgPool2d((7, 7))
@@ -80,14 +81,14 @@ class VGG(nn.Module):
 
     def _reconstruct_classifiers(self):
         for dataset, num_classes in self.dataset2num_classes.items():
-            self.classifiers.append(nn.Linear(int(self.shared_layer_info[dataset]['network_width_multiplier'] * 4096), num_classes))
+            self.classifiers.append(nn.Linear(int(self.shared_layer_info[dataset]['network_width_multiplier'] * self.N), num_classes))
 
     def add_dataset(self, dataset, num_classes):
         """Adds a new dataset to the classifier."""
         if dataset not in self.datasets:
             self.datasets.append(dataset)
             self.dataset2num_classes[dataset] = num_classes
-            self.classifiers.append(nn.Linear(int(4096*self.network_width_multiplier), num_classes))
+            self.classifiers.append(nn.Linear(int(self.N*self.network_width_multiplier), num_classes))
             nn.init.normal_(self.classifiers[self.datasets.index(dataset)].weight, 0, 0.01)
             nn.init.constant_(self.classifiers[self.datasets.index(dataset)].bias, 0)
 
@@ -344,8 +345,8 @@ def custom_vgg(custom_cfg, dataset_history=[], dataset2num_classes={}, network_w
 
 def custom_vgg_10_mini_imagenet(custom_cfg, dataset_history=[], dataset2num_classes={}, network_width_multiplier=1.0, groups=1, shared_layer_info={}, **kwargs):
     return VGG(make_layers_10_mini_imagenet(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
-        dataset2num_classes, network_width_multiplier, shared_layer_info, **kwargs)
+        dataset2num_classes, network_width_multiplier, shared_layer_info, **kwargs, N=2048)
 
 def custom_vgg_20_mini_imagenet(custom_cfg, dataset_history=[], dataset2num_classes={}, network_width_multiplier=1.0, groups=1, shared_layer_info={}, **kwargs):
     return VGG(make_layers_20_mini_imagenet(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
-        dataset2num_classes, network_width_multiplier, shared_layer_info, **kwargs)
+        dataset2num_classes, network_width_multiplier, shared_layer_info, **kwargs, N=4096)
