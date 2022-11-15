@@ -290,7 +290,7 @@ def vgg16_bn_10_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_
     """
     if pretrained:
         kwargs['init_weights'] = False
-    return VGG(make_layers_10_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs, N=2048)
+    return VGG(make_layers_10_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs)
 
 def vgg16_bn_20_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_classes={}, **kwargs):
     """VGG 16-layer model (configuration "D") with batch normalization
@@ -300,4 +300,4 @@ def vgg16_bn_20_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_
     """
     if pretrained:
         kwargs['init_weights'] = False
-    return VGG(make_layers_20_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs, N=4096)
+    return VGG(make_layers_20_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs)
