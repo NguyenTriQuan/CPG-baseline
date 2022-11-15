@@ -29,7 +29,7 @@ for task_id in `seq 1 10`; do
   then
       CUDA_VISIBLE_DEVICES=$GPU_ID python packnet_mini_imagenet_main.py \
           --arch $arch \
-          --dataset ${dataset[task_id]} --num_classes num_classes \
+          --dataset ${dataset[task_id]} --num_classes $num_classes \
           --lr 1e-2 \
           --weight_decay 4e-5 \
           --save_folder checkpoints/PackNet/experiment1/$arch/${dataset[task_id]}/scratch \
@@ -39,7 +39,7 @@ for task_id in `seq 1 10`; do
   else
       CUDA_VISIBLE_DEVICES=$GPU_ID python packnet_mini_imagenet_main.py \
           --arch $arch \
-          --dataset ${dataset[task_id]} --num_classes num_classes \
+          --dataset ${dataset[task_id]} --num_classes $num_classes \
           --lr 1e-2 \
           --weight_decay 4e-5 \
           --save_folder checkpoints/PackNet/experiment1/$arch/${dataset[task_id]}/scratch \
@@ -50,7 +50,7 @@ for task_id in `seq 1 10`; do
   # Prune tasks
   CUDA_VISIBLE_DEVICES=$GPU_ID python packnet_mini_imagenet_main.py \
       --arch $arch \
-      --dataset ${dataset[task_id]} --num_classes num_classes \
+      --dataset ${dataset[task_id]} --num_classes $num_classes \
       --lr 1e-3 \
       --weight_decay 4e-5 \
       --save_folder checkpoints/PackNet/experiment1/$arch/${dataset[task_id]}/one_shot_prune \
@@ -65,7 +65,7 @@ done
 for history_id in `seq 1 10`; do
     CUDA_VISIBLE_DEVICES=$GPU_ID python packnet_mini_imagenet_main.py \
         --arch $arch \
-        --dataset ${dataset[history_id]} --num_classes num_classes \
+        --dataset ${dataset[history_id]} --num_classes $num_classes \
         --load_folder checkpoints/PackNet/experiment1/$arch/${dataset[10]}/one_shot_prune \
         --mode inference
 done
