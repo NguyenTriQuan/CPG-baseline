@@ -24,7 +24,7 @@ dataset=(
 )
 GPU_ID=0
 NETWORK_WIDTH_MULTIPLIER=1
-ARCH='custom_vgg_mini_imagenet'
+ARCH='custom_vgg_20_mini_imagenet'
 SETTING='scratch_mul_1.5'
 
 for TASK_ID in `seq 1 20`; do

@@ -3,7 +3,7 @@ import pdb
 
 __all__ = [
     'VGG', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
-    'vgg19_bn', 'vgg19', 'vgg16_bn_cifar100', 'vgg16_bn_mini_imagenet'
+    'vgg19_bn', 'vgg19', 'vgg16_bn_cifar100', 'vgg16_bn_10_mini_imagenet', 'vgg16_bn_20_mini_imagenet'
 ]
 
 class Sequential_Debug(nn.Sequential):
@@ -95,7 +95,7 @@ def make_layers_cifar100(cfg, batch_norm=False):
 
     return Sequential_Debug(*layers)
 
-def make_layers_mini_imagenet(cfg, batch_norm=False):
+def make_layers_10_mini_imagenet(cfg, batch_norm=False):
     layers = []
     in_channels = 3
     for v in cfg:
@@ -111,10 +111,35 @@ def make_layers_mini_imagenet(cfg, batch_norm=False):
             in_channels = v
 
     layers += [
-        View(-1, 512 * 4 // 2),
-        nn.Linear(512 *4 // 2, 4096//2),
+        nn.Flatten(),
+        nn.Linear(512 * 4 // 2, 4096//2),
         nn.ReLU(True),
         nn.Linear(4096//2, 4096//2),
+        nn.ReLU(True)
+    ]
+
+    return Sequential_Debug(*layers)
+
+def make_layers_20_mini_imagenet(cfg, batch_norm=False):
+    layers = []
+    in_channels = 3
+    for v in cfg:
+        if v == 'M':
+            layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+        else:
+            v = v
+            conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1, bias=False)
+            if batch_norm:
+                layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
+            else:
+                layers += [conv2d, nn.ReLU(inplace=True)]
+            in_channels = v
+
+    layers += [
+        nn.Flatten(),
+        nn.Linear(512 * 4, 4096),
+        nn.ReLU(True),
+        nn.Linear(4096, 4096),
         nn.ReLU(True)
     ]
 
@@ -256,7 +281,7 @@ def vgg16_bn_cifar100(pretrained=False, dataset_history=[], dataset2num_classes=
         kwargs['init_weights'] = False
     return VGG(make_layers_cifar100(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs)
 
-def vgg16_bn_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_classes={}, **kwargs):
+def vgg16_bn_10_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_classes={}, **kwargs):
     """VGG 16-layer model (configuration "D") with batch normalization
 
     Args:
@@ -264,4 +289,14 @@ def vgg16_bn_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_cla
     """
     if pretrained:
         kwargs['init_weights'] = False
-    return VGG(make_layers_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs)
+    return VGG(make_layers_10_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs)
+
+def vgg16_bn_20_mini_imagenet(pretrained=False, dataset_history=[], dataset2num_classes={}, **kwargs):
+    """VGG 16-layer model (configuration "D") with batch normalization
+
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    """
+    if pretrained:
+        kwargs['init_weights'] = False
+    return VGG(make_layers_20_mini_imagenet(cfg['D'], batch_norm=True), dataset_history, dataset2num_classes, **kwargs)

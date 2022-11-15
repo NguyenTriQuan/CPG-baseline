@@ -6,7 +6,7 @@ import numpy as np
 
 __all__ = [
     'VGG', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
-    'vgg19_bn', 'vgg19', 'custom_vgg', 'custom_vgg_cifar100', 'custom_vgg_mini_imagenet'
+    'vgg19_bn', 'vgg19', 'custom_vgg', 'custom_vgg_cifar100', 'custom_vgg_10_mini_imagenet', 'custom_vgg_20_mini_imagenet'
 ]
 
 
@@ -125,7 +125,36 @@ def make_layers_cifar100(cfg, network_width_multiplier, batch_norm=False, groups
 
     return nn.Sequential(*layers)
 
-def make_layers_mini_imagenet(cfg, network_width_multiplier, batch_norm=False, groups=1):
+def make_layers_10_mini_imagenet(cfg, network_width_multiplier, batch_norm=False, groups=1):
+    layers = []
+    in_channels = 3
+
+    for v in cfg:
+        if v == 'M':
+            layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+        else:
+            v = v // 2
+            if in_channels == 3:
+                conv2d = nl.SharableConv2d(in_channels, int(v * network_width_multiplier), kernel_size=3, padding=1, bias=False)
+            else:
+                conv2d = nl.SharableConv2d(in_channels, int(v * network_width_multiplier), kernel_size=3, padding=1, bias=False, groups=groups)
+
+            if batch_norm:
+                layers += [conv2d, nn.BatchNorm2d(int(v * network_width_multiplier)), nn.ReLU(inplace=True)]
+            else:
+                layers += [conv2d, nn.ReLU(inplace=True)]
+            in_channels = int(v * network_width_multiplier)
+
+    layers += [
+        nn.Flatten(),
+        nl.SharableLinear(int(512*network_width_multiplier*4/2), int(4096*network_width_multiplier/2)),
+        nn.ReLU(True),
+        nl.SharableLinear(int(4096*network_width_multiplier/2), int(4096*network_width_multiplier/2)),
+        nn.ReLU(True),
+    ]
+    return nn.Sequential(*layers)
+
+def make_layers_20_mini_imagenet(cfg, network_width_multiplier, batch_norm=False, groups=1):
     layers = []
     in_channels = 3
 
@@ -313,6 +342,10 @@ def custom_vgg(custom_cfg, dataset_history=[], dataset2num_classes={}, network_w
     return VGG(make_layers(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
         dataset2num_classes, network_width_multiplier, shared_layer_info, **kwargs)
 
-def custom_vgg_mini_imagenet(custom_cfg, dataset_history=[], dataset2num_classes={}, network_width_multiplier=1.0, groups=1, shared_layer_info={}, **kwargs):
-    return VGG(make_layers_mini_imagenet(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
+def custom_vgg_10_mini_imagenet(custom_cfg, dataset_history=[], dataset2num_classes={}, network_width_multiplier=1.0, groups=1, shared_layer_info={}, **kwargs):
+    return VGG(make_layers_10_mini_imagenet(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
+        dataset2num_classes, network_width_multiplier, shared_layer_info, **kwargs)
+
+def custom_vgg_20_mini_imagenet(custom_cfg, dataset_history=[], dataset2num_classes={}, network_width_multiplier=1.0, groups=1, shared_layer_info={}, **kwargs):
+    return VGG(make_layers_20_mini_imagenet(custom_cfg, network_width_multiplier, batch_norm=True, groups=groups), dataset_history, 
         dataset2num_classes, network_width_multiplier, shared_layer_info, **kwargs)

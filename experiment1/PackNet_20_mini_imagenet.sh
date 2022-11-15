@@ -27,7 +27,7 @@ dataset=(
 
 GPU_ID=0
 one_shot_prune_perc=0.6
-arch='vgg16_bn_mini_imagenet'
+arch='vgg16_bn_20_mini_imagenet'
 finetune_epochs=100
 prune_epochs=30
 num_classes=5
