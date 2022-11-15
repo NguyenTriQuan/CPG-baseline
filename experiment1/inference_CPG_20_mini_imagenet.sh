@@ -23,7 +23,7 @@ dataset=(
     '19'
 )
 GPU_ID=0
-NETWORK_WIDTH_MULTIPLIER=0.5
+NETWORK_WIDTH_MULTIPLIER=1
 ARCH='custom_vgg_mini_imagenet'
 SETTING='scratch_mul_1.5'
 
@@ -35,6 +35,6 @@ for TASK_ID in `seq 1 20`; do
         --mode inference \
         --baseline_acc_file logs/baseline_20_mini_imagenet.txt \
         --network_width_multiplier $NETWORK_WIDTH_MULTIPLIER \
-        --max_allowed_network_width_multiplier 0.75 \
+        --max_allowed_network_width_multiplier 1.5 \
         --log_path logs/20_mini_imagenet_inference.log
 done

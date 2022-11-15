@@ -145,13 +145,12 @@ def make_layers_mini_imagenet(cfg, network_width_multiplier, batch_norm=False, g
             in_channels = int(v * network_width_multiplier)
 
     layers += [
-        View(-1, int(512*network_width_multiplier*4)),
+        nn.Flatten(),
         nl.SharableLinear(int(512*network_width_multiplier*4), int(4096*network_width_multiplier)),
         nn.ReLU(True),
         nl.SharableLinear(int(4096*network_width_multiplier), int(4096*network_width_multiplier)),
         nn.ReLU(True),
     ]
-
     return nn.Sequential(*layers)
 
 def make_layers(cfg, network_width_multiplier, batch_norm=False, groups=1):
